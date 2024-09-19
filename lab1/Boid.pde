@@ -39,48 +39,34 @@ class Boid
     {
       // TODO: Implement seek here
 
-      //
       // get distance from boid to target
       // rotate boid towards the target
       // set arrival radius of target
       // if boid is in arrival radius, decrease speed and rotational velocity
       // else increaseSpeed(max_speed, max_rotational_acceleration)
       // increaseSpeed(float ds, float drs) ds - linear velocity, drs - rotational velocity
-      //
 
-      System.out.println("Target: " + target);
-      PVector distance = PVector.sub(target, this.kinematic.position);
-      System.out.println(distance);
-
-      float angle = atan2(distance.y, distance.x);
-      //print(angle + "\n");
-
-      float angleDiff = normalize_angle_left_right(angle - this.kinematic.getHeading());
-      //print(angleDiff + "\n");
-
-      //float velocity = this.kinematic.getSpeed();
-      float velocity = 5;
-      System.out.println(velocity);
+      //this.kinematic.heading = (target.heading() - kinematic.getHeading());
+      PVector desired = PVector.sub(target, kinematic.getPosition());
+      float d = desired.mag();
       
-      float arrivalRadius = 10;
-      
-      if(distance.x > arrivalRadius + target.x || abs(distance.y) > abs(arrivalRadius + target.y)) {
-        System.out.println("Hi");
-        //increaseSpeed(); decrease speed and rotational velocity
+      if(d > 25){
+        System.out.println("Not there yet");
+        desired.normalize();
+        
+        float desiredHeading = atan2(desired.y, desired.x);
+        
+        float difference = desiredHeading - this.kinematic.getHeading();
+        
+        difference = atan2(sin(difference), cos(difference));
+        
+        float rSpeed = constrain(difference, -this.kinematic.max_rotational_speed, this.kinematic.max_rotational_speed);
+        
+        this.kinematic.increaseSpeed(this.kinematic.max_speed, rSpeed);
       }
-      
-      this.kinematic.increaseSpeed(velocity, angleDiff);
-
-
-
-      //this.kinematic.increaseSpeed(0,0);
-      //this.seek(target);
-
-      //this.kinematic.getSpeed();
-      //this.kinematic.getRotationalVelocity();
-
-
-
+      else {
+        this.kinematic.increaseSpeed(-(this.kinematic.getSpeed()), -(this.kinematic.getRotationalVelocity())); 
+      }
     }
 
     // place crumbs, do not change
