@@ -42,27 +42,42 @@ class Boid
       //
       // get distance from boid to target
       // rotate boid towards the target
+      // set arrival radius of target
+      // if boid is in arrival radius, decrease speed and rotational velocity
+      // else increaseSpeed(max_speed, max_rotational_acceleration)
       // increaseSpeed(float ds, float drs) ds - linear velocity, drs - rotational velocity
       //
 
-
+      System.out.println("Target: " + target);
       PVector distance = PVector.sub(target, this.kinematic.position);
       System.out.println(distance);
 
       float angle = atan2(distance.y, distance.x);
-      print(angle + "\n");
+      //print(angle + "\n");
 
       float angleDiff = normalize_angle_left_right(angle - this.kinematic.getHeading());
-      print(angleDiff + "\n");
+      //print(angleDiff + "\n");
 
-      this.kinematic.increaseSpeed(3, angleDiff);
+      //float velocity = this.kinematic.getSpeed();
+      float velocity = 5;
+      System.out.println(velocity);
+      
+      float arrivalRadius = 10;
+      
+      if(distance.x > arrivalRadius + target.x || abs(distance.y) > abs(arrivalRadius + target.y)) {
+        System.out.println("Hi");
+        //increaseSpeed(); decrease speed and rotational velocity
+      }
+      
+      this.kinematic.increaseSpeed(velocity, angleDiff);
 
 
 
       //this.kinematic.increaseSpeed(0,0);
       //this.seek(target);
 
-
+      //this.kinematic.getSpeed();
+      //this.kinematic.getRotationalVelocity();
 
 
 
@@ -126,24 +141,6 @@ class Boid
     //  this.target = waypoints.get(i);
 
     //}
-
-    //kinematic.update();
-
-    //if (mousePressed)
-    //  mouse = new PVector(mouseX, mouseY);
-    //PVector dir = PVector.sub(mouse, location);
-    //dir.normalize();
-    //dir.mult(0.5);
-    //acceleration = dir;
-
-    //velocity.add(acceleration);
-    //velocity.limit(topspeed);
-
-    //location.add(velocity);
-
-    //System.out.println(this.kinematic.max_speed);
-
-    //this.kinematic.increaseSpeed(float ds, float drs)
 
     System.out.println(this.kinematic.getHeading());
   }
