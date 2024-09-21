@@ -7,19 +7,30 @@ class Flock {
     boids = new ArrayList<Boid>();
   }
 
+  void update(float dt) {
+    for (Boid boid : boids) {
+      boid.update(dt);
+    }
+  }
+
   // Separation - steer to avoid crowding local flockmates
-  PVector separate() {
+  PVector separate(Boid boid) {
     PVector steer = new PVector(0, 0);
-    
-    
-    
+
+
+
     return steer;
   }
 
-  // Alignment
+  // Alignment - steer towards the average heading of local flockmates
 
 
-  // Cohesion
+
+
+  // Cohesion - steer to move toward the average position of local flockmates
+  
+  
+  
 }
 
 /// called when "f" is pressed; should instantiate additional boids and start flocking
@@ -30,19 +41,11 @@ void flock(Boid billy)
   flock.boids.add(billy);
 
   for (int i = 0; i < 8; i++) {
-    PVector position = new PVector(random(width), random(height));
+    PVector position = new PVector(random(BILLY_START.x - 100, BILLY_START.x+100), random(BILLY_START.y - 100, BILLY_START.y+100));
     flock.boids.add(new Boid(position, BILLY_START_HEADING, BILLY_MAX_SPEED, BILLY_MAX_ROTATIONAL_SPEED, BILLY_MAX_ACCELERATION, BILLY_MAX_ROTATIONAL_ACCELERATION));
     System.out.println(position);
-}
+  }
   System.out.println(flock.boids);
-
-  // PVector sep = separate
-  // PVector ali = align
-  // PVector coh = cohesion
-
-  // sep.mult(1.5)
-  // ali.mult(1.0)
-  // coh.mult(1.0)
 }
 
 /// called when "f" is pressed again; should remove the flock

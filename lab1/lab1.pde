@@ -146,6 +146,11 @@ void draw() {
   lastt = millis();
   billy.update(dt);
   map.update(dt);
+  
+  if (flocking_enabled) {
+   flock.update(dt); 
+  }
+  
   if (show_nav_mesh)
      nm.update(dt);
   textSize(12);
