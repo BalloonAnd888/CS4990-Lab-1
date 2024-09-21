@@ -102,11 +102,11 @@ void keyPressed()
        flocking_enabled = !flocking_enabled;
        if (flocking_enabled)
        {
-          flock();
+          flock(billy);
        }
        else
        {
-          unflock();
+          unflock(billy);
        }
     }
 }
