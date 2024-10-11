@@ -19,9 +19,11 @@ class Node
 class NavMesh
 {
   ArrayList<Node> nodes;
+  ArrayList<PVector> reflex;
 
   NavMesh() {
     nodes = new ArrayList<>();
+    reflex = new ArrayList<>();
   }
 
   void bake(Map map)
@@ -85,18 +87,18 @@ class NavMesh
 
     // Determine which corners are non-convex (concave) by checking if the angle is > 180
     // a.normal.dot(b.direction)
-    ArrayList<PVector> reflex = new ArrayList<>();
+    //ArrayList<PVector> reflex = new ArrayList<>();
     for (int i = 0; i < corners.size(); i++) {
       Wall current = corners.get(i);
       Wall next = corners.get((i + 1) % corners.size());
       Wall previous = corners.get((i - 1 + corners.size()) % corners.size());
 
       float dotProduct = previous.normal.dot(current.direction);
-      System.out.println("Dot Product: " + dotProduct);
+      //System.out.println("Dot Product: " + dotProduct);
 
       if (dotProduct > 0) {
         reflex.add(current.start);
-        System.out.println("Reflex Angle Found");
+        //System.out.println("Reflex Angle Found");
       }
     }
 
@@ -105,9 +107,14 @@ class NavMesh
       System.out.println(reflex.get(i));
     }
 
+    // For each non-convex corner, add edges to split polygon into convex polygons,
+    // find corner to add edge and check the new polygon to see if there's a reflex angle
 
-    // For each non-convex corner, add edges to split polygon into convex polygons
-    // Identify concave corners using reflex angles
+
+
+
+
+
     // Draw a line that splits the polygon into two parts
     // Repeate until all polygons are convex
     // Create a graph where each node represents a convex polygon
@@ -119,12 +126,12 @@ class NavMesh
 
 
 
-    for (Wall wall : map.outline) {
-      Node node = new Node();
-      node.polygon = new ArrayList<>(map.outline);
+    //for (Wall wall : map.outline) {
+    //  Node node = new Node();
+    //  node.polygon = new ArrayList<>(map.outline);
 
-      nodes.add(node);
-    }
+    //  nodes.add(node);
+    //}
   }
 
   ArrayList<PVector> findPath(PVector start, PVector destination)
@@ -148,6 +155,11 @@ class NavMesh
       for (Wall wall : node.polygon) {
         line(wall.start.x, wall.start.y, wall.end.x, wall.end.y);
       }
+    }
+    
+    fill(255, 0, 0);
+    for (PVector reflex : reflex) {
+      ellipse(reflex.x, reflex.y, 12, 12);
     }
   }
 }
