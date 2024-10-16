@@ -44,9 +44,6 @@ class NavMesh
     // Split the polygon until all polygons are convex
     ArrayList<ArrayList<Wall>> polygons = splitIntoConvexPolygons(corners);
 
-    //findReflexAngles(corners);
-    //System.out.println(isConvexPolygon(corners));
-
     for (ArrayList<Wall> polygon : polygons) {
       Node node = new Node();
       node.polygon = polygon;
@@ -59,28 +56,12 @@ class NavMesh
     // For each non-convex corner, add edges to split polygon into convex polygons,
     // find corner to add edge and check the new polygon to see if there's a reflex angle
 
-
-
-
-
-
     // Draw a line that splits the polygon into two parts
     // Repeate until all polygons are convex
     // Create a graph where each node represents a convex polygon
     // Two nodes are connected by an edge if the polygons share a border (common edge)
     // Find midpoint of shared edges
     // If obstacles are present, extend outline of map by connecting the obstacle vertices to the outer edges of the map
-
-
-
-
-
-    //for (Wall wall : map.outline) {
-    //  Node node = new Node();
-    //  node.polygon = new ArrayList<>(map.outline);
-
-    //  nodes.add(node);
-    //}
   }
 
   ArrayList<ArrayList<Wall>> splitIntoConvexPolygons(ArrayList<Wall> corners) {
@@ -126,22 +107,44 @@ class NavMesh
       polygons.add(current);
     }
     for (PVector reflexCorner : reflexCorners) {
-      System.out.println(reflexCorner);
+      System.out.println("Reflex Corner: " + reflexCorner);
       Wall edge = createEdge(reflexCorner, current, map);
-      System.out.println(edge);
-      //System.out.println(edge.start);
-      //System.out.println(edge.end);
+      //System.out.println(edge);
+      System.out.println("Edge");
+      System.out.println(edge.start);
+      System.out.println(edge.end);
       if (edge != null) {
         ArrayList<Wall> newPolygon = splitPolygon(current, edge);
+        //System.out.print("New Polygon\n");
+        //for (Wall wall : newPolygon) {
+        //  System.out.print("Side");
+        //  System.out.print(wall.start);
+        //  System.out.print(wall.end);
+        //}
         polygons.add(newPolygon);
         //for (Wall wall : newPolygon) {
         //  current.remove(wall);
         //}
       }
     }
-    if (!current.isEmpty()) {
-      polygons.add(current);
+
+
+    for (ArrayList<Wall> polygon : polygons) {
+      System.out.println("\nPolygon");
+      for (Wall wall : polygon) {
+        System.out.println("Side");
+        System.out.println(wall.start);
+        System.out.println(wall.end + "\n");
+      }
     }
+
+    //System.out.println("\nCurrent Map");
+    //for (Wall wall : current) {
+    //  System.out.println("Side");
+    //  System.out.println(wall.start);
+    //  System.out.println(wall.end + "\n");
+    //}
+
 
 
     // Split polygon with the edge
@@ -155,73 +158,92 @@ class NavMesh
     return polygons;
   }
 
+  // fix splitPolygon, currently saving current
   ArrayList<Wall> splitPolygon(ArrayList<Wall> polygon, Wall edge) {
     ArrayList<Wall> newPolygon = new ArrayList<>();
 
-    // The start and end of the splitting edge
-    PVector start = edge.start;
-    PVector end = edge.end;
+    //// The start and end of the splitting edge
+    //PVector start = edge.start;
+    //PVector end = edge.end;
 
-    // Find the indices of the walls that match the edge's start and end
-    int splitStartIndex = -1;
-    int splitEndIndex = -1;
+    //// Find the indices of the walls that match the edge's start and end
+    //int splitStartIndex = -1;
+    //int splitEndIndex = -1;
 
-    for (int i = 0; i < polygon.size(); i++) {
-      Wall wall = polygon.get(i);
+    //for (int i = 0; i < polygon.size(); i++) {
+    //  Wall wall = polygon.get(i);
 
-      // Check if the start of the wall matches the edge start
-      if (wall.start.equals(start)) {
-        splitStartIndex = i;
-      }
+    //  // Check if the start of the wall matches the edge start
+    //  if (wall.start.equals(start)) {
+    //    splitStartIndex = i;
+    //  }
 
-      // Check if the start of the wall matches the edge end
-      if (wall.start.equals(end)) {
-        splitEndIndex = i;
-      }
-    }
+    //  // Check if the start of the wall matches the edge end
+    //  if (wall.start.equals(end)) {
+    //    splitEndIndex = i;
+    //  }
+    //}
 
-    if (splitStartIndex == -1 || splitEndIndex == -1) {
-      throw new IllegalStateException("Cannot find points in polygon to split.");
-    }
+    //if (splitStartIndex == -1 || splitEndIndex == -1) {
+    //  throw new IllegalStateException("Cannot find points in polygon to split.");
+    //}
 
-    // Create the first half of the polygon
-    for (int i = splitStartIndex; i != splitEndIndex; i = (i + 1) % polygon.size()) {
-      newPolygon.add(polygon.get(i));
-    }
+    //// Create the first half of the polygon
+    //for (int i = splitStartIndex; i != splitEndIndex; i = (i + 1) % polygon.size()) {
+    //  newPolygon.add(polygon.get(i));
+    //}
 
-    // Add the edge to the new polygon
-    newPolygon.add(edge);
+    //// Add the edge to the new polygon
+    //newPolygon.add(edge);
 
     // Optionally, you can return the remaining polygon as well
     return newPolygon;
   }
 
-
-  ArrayList<Wall> removeWalls(ArrayList<Wall> original, ArrayList<Wall> toRemove) {
-    ArrayList<Wall> remaining = new ArrayList<>(original);
-    for (Wall wall : toRemove) {
-      remaining.remove(wall); // Remove the walls of the new polygon from the current
-    }
-    return remaining;
-  }
-
   Wall createEdge(PVector reflex, ArrayList<Wall> polygon, Map map) {
+    Wall edge = null;
+    float distance = Float.MAX_VALUE;
+
     for (Wall wall : polygon) {
       PVector candidate = wall.start;
-      System.out.println(candidate);
+      System.out.println("Candidate: " + candidate);
       //System.out.println(!intersects(reflex, candidate, wall.start, wall.end));
       //System.out.println(reflex.equals(candidate));
+
       // Check if the edge collides with a wall
-      if (!reflex.equals(candidate) && !intersects(reflex, candidate, wall.start, wall.end)) {
+      if (!reflex.equals(candidate) &&
+        !intersects(reflex, candidate, wall.start, wall.end) &&
+        distance > PVector.dist(reflex, candidate) &&
+        !isOriginalWall(reflex, candidate, polygon) &&
+        //isPointInPolygon(getRandomPoint(new Wall(reflex, candidate)), polygon)
+        isPointInPolygon(new PVector(random(reflex.x, candidate.x), random(reflex.y, candidate.y)), polygon)
+        ) {
         System.out.println("New Wall");
-        return new Wall(reflex, candidate);  // Create the edge
+        distance = PVector.dist(reflex, candidate);
+        edge = new Wall(reflex, candidate);
+        //return new Wall(reflex, candidate);  // Create the edge
       }
       //if (!reflex.equals(candidate) && wall.crosses(candidate, reflex)) {
       //  System.out.println("New Wall");
       //  return new Wall(reflex, candidate);  // Create the edge
       //}
     }
-    return null;  // No valid edge found
+    if (edge != null) {
+      System.out.println("Shortest Edge: " + distance);
+    }
+    return edge;
+    //return null;  // No valid edge found
+  }
+
+  boolean isOriginalWall(PVector reflex, PVector candidate, ArrayList<Wall> polygon) {
+    for (Wall wall : polygon) {
+      // Check if either (reflex, candidate) or (candidate, reflex) matches an existing wall
+      if ((wall.start.equals(reflex) && wall.end.equals(candidate)) ||
+        (wall.start.equals(candidate) && wall.end.equals(reflex))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   boolean intersects(PVector p1, PVector p2, PVector p3, PVector p4) {
