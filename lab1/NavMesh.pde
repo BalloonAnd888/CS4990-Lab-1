@@ -1,6 +1,6 @@
 // Useful to sort lists by a custom key
 import java.util.Comparator;
-
+import java.util.Stack;
 
 /// In this file you will implement your navmesh and pathfinding.
 
@@ -24,7 +24,6 @@ class NavMesh
 
   NavMesh() {
     nodes = new ArrayList<>();
-    reflex = new ArrayList<>();
   }
 
   void bake(Map map)
@@ -40,6 +39,7 @@ class NavMesh
 
       System.out.println("Start: " + start.x + ", " + start.y);
       System.out.println("End: " + end.x + ", " + end.y);
+      System.out.println("Direction: " + wall.direction);
     }
 
     // Split the polygon until all polygons are convex
@@ -67,158 +67,82 @@ class NavMesh
 
   ArrayList<ArrayList<Wall>> splitIntoConvexPolygons(ArrayList<Wall> corners) {
     ArrayList<ArrayList<Wall>> polygons = new ArrayList<>();
-    ArrayList<Wall> current = new ArrayList<>(corners);
+    Stack<ArrayList<Wall>> stack = new Stack<>();
 
-    // Loop until all polygons are convex
-    while (!isConvexPolygon(current)) {
+    // Initialize the stack with the original polygon
+    stack.push(new ArrayList<>(corners));
+
+    while (!stack.isEmpty()) {
+      ArrayList<Wall> current = stack.pop();
+      ArrayList<PVector> reflexCorners = new ArrayList<>();
+
+      //System.out.println("\nCurrent Map");
+      //for (Wall wall : current) {
+      //  System.out.println("Side");
+      //  System.out.println(wall.start);
+      //  System.out.println(wall.end + "\n");
+      //}
+
       // Find all reflex angles
-      ArrayList<PVector> reflexCorners = findReflexAngles(current);
+      reflexCorners = findReflexAngles(current);
 
-      if (reflexCorners.isEmpty()) {
-        polygons.add(current);
-        break;
+      for (PVector rc : reflexCorners) {
+        System.out.println("RC: " + rc);
       }
-      int currentIndex = -1;
+
       for (PVector reflexCorner : reflexCorners) {
-        System.out.println("Reflex Corner: " + reflexCorner);
         Wall edge = createEdge(reflexCorner, current, map);
         //System.out.println(edge);
-        System.out.println("Edge:");
-        System.out.println("Start: " + edge.start);
-        System.out.println("End: " + edge.end);
+        //System.out.println("Edge:");
+        //System.out.println("Start: " + edge.start);
+        //System.out.println("End: " + edge.end);
         if (edge != null) {
           ArrayList<Wall> newPolygon = splitPolygon(current, reflexCorner, edge);
-          System.out.print("New Polygon\n");
-          for (Wall wall : newPolygon) {
-            System.out.print("Side\n");
-            System.out.println("Start: " + wall.start);
-            System.out.println("End: " + wall.end);
-          }
-          
-          //if (isConvexPolygon(newPolygon)) {
-          //  polygons.add(newPolygon);
-          //} else {
-          // polygons.addAll(splitIntoConvexPolygons(newPolygon)); 
+          //System.out.print("New Polygon\n");
+          //for (Wall wall : newPolygon) {
+          //  System.out.print("Side\n");
+          //  System.out.println("Start: " + wall.start);
+          //  System.out.println("End: " + wall.end);
           //}
-          
-          polygons.add(newPolygon);
-          boolean gotIndex = false;
-          for (Wall wall : newPolygon) {
-            if (!wall.equals(edge)) {
-              if (!gotIndex) {
-                currentIndex = current.indexOf(wall);
-                System.out.println("Index: " + currentIndex);
-                current.remove(wall);
-                gotIndex = true;
-              } else {
-                current.remove(wall);
-              }
+
+          if (!newPolygon.isEmpty()) {
+            if (isConvexPolygon(newPolygon)) {
+              polygons.add(newPolygon);
+            } else {
+              stack.push(newPolygon); // Add the new polygon for further processing
+              //System.out.println("\nStack");
+              //for (ArrayList<Wall> s : stack) {
+              //  System.out.println("\nStack Polygon");
+              //  for (Wall wall : s) {
+              //    System.out.println("Side");
+              //    System.out.println(wall.start);
+              //    System.out.println(wall.end + "\n");
+              //  }
+              //}
             }
           }
-          current.add(currentIndex, new Wall(edge.end, edge.start));
-          System.out.println("\nCurrent Map");
-          for (Wall wall : current) {
-            System.out.println("Side");
-            System.out.println(wall.start);
-            System.out.println(wall.end + "\n");
+
+          System.out.println(isConvexPolygon(newPolygon));
+
+          updateCurrent(current, newPolygon, edge);
+
+          if (isConvexPolygon(current)) {
+            polygons.add(current);
+          } else {
+            stack.push(current);
           }
+
+          //System.out.println("\nCurrent Map");
+          //for (Wall wall : current) {
+          //  System.out.println("Side");
+          //  System.out.println(wall.start);
+          //  System.out.println(wall.end + "\n");
+          //}
         }
       }
     }
-    if (!current.isEmpty()) {
-      polygons.add(current);
-    }
 
-
-
-    //// Find all reflex angles
-    //ArrayList<PVector> reflexCorners = findReflexAngles(current);
-
-    //if (reflexCorners.isEmpty()) {
-    //  polygons.add(current);
-    //}
-    //int currentIndex = -1;
-    //for (PVector reflexCorner : reflexCorners) {
-    //  System.out.println("Reflex Corner: " + reflexCorner);
-    //  Wall edge = createEdge(reflexCorner, current, map);
-    //  //System.out.println(edge);
-    //  System.out.println("Edge:");
-    //  System.out.println("Start: " + edge.start);
-    //  System.out.println("End: " + edge.end);
-    //  if (edge != null) {
-    //    ArrayList<Wall> newPolygon = splitPolygon(current, reflexCorner, edge);
-    //    System.out.print("New Polygon\n");
-    //    for (Wall wall : newPolygon) {
-    //      System.out.print("Side\n");
-    //      System.out.println("Start: " + wall.start);
-    //      System.out.println("End: " + wall.end);
-    //    }
-    //    polygons.add(newPolygon);
-    //    boolean gotIndex = false;
-    //    for (Wall wall : newPolygon) {
-    //      if (!wall.equals(edge)) {
-    //        if (!gotIndex) {
-    //          currentIndex = current.indexOf(wall);
-    //          System.out.println("Index: " + currentIndex);
-    //          current.remove(wall);
-    //          gotIndex = true;
-    //        } else {
-    //          current.remove(wall);
-    //        }
-    //      }
-    //    }
-    //    current.add(currentIndex, new Wall(edge.end, edge.start));
-    //    System.out.println("\nCurrent Map");
-    //    for (Wall wall : current) {
-    //      System.out.println("Side");
-    //      System.out.println(wall.start);
-    //      System.out.println(wall.end + "\n");
-    //    }
-    //  }
-    //}
-
-
-    //ArrayList<PVector> reflexCorners = findReflexAngles(current);
-
-    //if (!reflexCorners.isEmpty()) {
-    //  PVector reflexCorner = reflexCorners.get(0);  // Get the first element
-    //  System.out.println("First Reflex Corner: " + reflexCorner);
-
-    //  Wall edge = createEdge(reflexCorner, current, map);
-
-    //  if (edge != null) {
-    //    System.out.println("Edge:");
-    //    System.out.println("Start: " + edge.start);
-    //    System.out.println("End: " + edge.end);
-
-    //    ArrayList<Wall> newPolygon = splitPolygon(current, reflexCorner, edge);
-
-    //    System.out.println("New Polygon:");
-    //    for (Wall wall : newPolygon) {
-    //      System.out.println("Side:");
-    //      System.out.println("Start: " + wall.start);
-    //      System.out.println("End: " + wall.end);
-    //    }
-
-    //    polygons.add(newPolygon);
-
-    //    // Remove walls from the current polygon, excluding the edge used for splitting
-    //    for (Wall wall : newPolygon) {
-    //      if (!wall.equals(edge)) {
-    //        current.remove(wall);
-    //        //current.add(edge);
-    //        //current.add(new Wall(edge.end, edge.start));
-    //      }
-    //    }
-    //    current.add(new Wall(edge.end, edge.start));
-    //  } else {
-    //    System.out.println("Failed to create an edge from the reflex corner.");
-    //  }
-    //} else {
-    //  System.out.println("No reflex corners found.");
-    //}
-
-
+    System.out.println("\nList of Convex Polygons");
     for (ArrayList<Wall> polygon : polygons) {
       System.out.println("\nConvex Polygon");
       for (Wall wall : polygon) {
@@ -235,30 +159,42 @@ class NavMesh
     //  System.out.println(wall.end + "\n");
     //}
 
-    //findReflexAngles(corners);
-    //System.out.println(isConvexPolygon(corners));
-
     return polygons;
   }
 
+  void updateCurrent(ArrayList<Wall> current, ArrayList<Wall> newPolygon, Wall edge) {
+    int currentIndex = -1;
+    boolean gotIndex = false;
+
+    for (Wall wall : newPolygon) {
+      if (!wall.equals(edge)) {
+        if (!gotIndex) {
+          currentIndex = current.indexOf(wall);
+          System.out.println("Index: " + currentIndex);
+          current.remove(wall);
+          gotIndex = true;
+        } else {
+          current.remove(wall);
+        }
+      }
+    }
+
+    if (currentIndex == 0) {
+      current.add(currentIndex, new Wall(edge.end, edge.start));
+    } else if (current.get(currentIndex-1).direction.x > 0) {
+      if (current.get(currentIndex - 1).end.equals(edge.end)) {
+        current.add(currentIndex, new Wall(edge.end, edge.start));
+      } else {
+        current.add(currentIndex, new Wall(edge.start, edge.end));
+      }
+    } else {
+      current.add(currentIndex, new Wall(edge.end, edge.start));
+    }
+  }
+
+
   ArrayList<Wall> splitPolygon(ArrayList<Wall> polygon, PVector reflexCorner, Wall edge) {
     ArrayList<Wall> newPolygon = new ArrayList<>();
-    // add edge
-    // check if wall.start == edge.start or edge.end
-    // start from start of polygon and loop until reflexCorner
-    //
-    // start from reflexCorner
-    // add edge
-    // loop from start of polygon to reflexCorner or edge
-
-    // add wall in between edge start and edge end
-    // wall start == edge start or edge end
-
-    // index of start of polygon to index of reflexCorner
-    // (wall.start.equals(edge.start) || wall.start.equals(edge.end))
-    // edge.end == wall.start || wall.start == edge.start
-    //current.add(new Wall(edge.end, edge.start));
-
     boolean split = false;
 
     for (Wall wall : polygon) {
@@ -268,8 +204,11 @@ class NavMesh
 
       if (split) {
         newPolygon.add(wall);
-        if (wall.end.equals(edge.start) || wall.end.equals(edge.end)) {
+        if (wall.end.equals(edge.start)) {
           newPolygon.add(edge);
+          break;
+        } else if (wall.end.equals(edge.end)) {
+          newPolygon.add(new Wall(edge.end, edge.start));
           break;
         }
       }
@@ -298,8 +237,7 @@ class NavMesh
         ) {
         System.out.println("New Wall");
         distance = PVector.dist(reflex, candidate);
-        edge = new Wall(reflex, candidate);
-        //return new Wall(reflex, candidate);  // Create the edge
+        edge = new Wall(reflex, candidate); // Create the edge
       }
       //if (!reflex.equals(candidate) && wall.crosses(candidate, reflex)) {
       //  System.out.println("New Wall");
@@ -310,7 +248,6 @@ class NavMesh
       System.out.println("Shortest Edge: " + distance);
     }
     return edge;
-    //return null;  // No valid edge found
   }
 
   boolean isOriginalWall(PVector reflex, PVector candidate, ArrayList<Wall> polygon) {
@@ -333,7 +270,6 @@ class NavMesh
     float dist3 = d2.dot(PVector.sub(p1, p3).normalize());
     float dist4 = d2.dot(PVector.sub(p2, p3).normalize());
 
-    // Check if the segments (p1-p2) and (p3-p4) intersect
     return (dist1 * dist2 < 0 && dist3 * dist4 < 0);
   }
 
@@ -354,11 +290,15 @@ class NavMesh
   ArrayList<PVector> findReflexAngles(ArrayList<Wall> corners) {
     // Determine which corners are non-convex (concave) by checking if the angle is > 180
     // a.normal.dot(b.direction)
-    //ArrayList<PVector> reflex = new ArrayList<>();
+    reflex = new ArrayList<>();
     for (int i = 0; i < corners.size(); i++) {
       Wall current = corners.get(i);
       Wall next = corners.get((i + 1) % corners.size());
       Wall previous = corners.get((i - 1 + corners.size()) % corners.size());
+
+      //System.out.println("Current Wall: " + current.start + current.end);
+      //System.out.println("Next Wall: " + next.start + next.end);
+      //System.out.println("Previous Wall: " + previous.start + previous.end);
 
       if (isReflex(current, next, previous)) {
         reflex.add(current.start);
