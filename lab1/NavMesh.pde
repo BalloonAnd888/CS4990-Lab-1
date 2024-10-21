@@ -132,12 +132,12 @@ class NavMesh
             stack.push(current);
           }
 
-          //System.out.println("\nCurrent Map");
-          //for (Wall wall : current) {
-          //  System.out.println("Side");
-          //  System.out.println(wall.start);
-          //  System.out.println(wall.end + "\n");
-          //}
+          System.out.println("\nCurrent Map");
+          for (Wall wall : current) {
+            System.out.println("Side");
+            System.out.println(wall.start);
+            System.out.println(wall.end + "\n");
+          }
         }
       }
     }
@@ -161,6 +161,114 @@ class NavMesh
 
     return polygons;
   }
+
+  //ArrayList<ArrayList<Wall>> splitIntoConvexPolygons(ArrayList<Wall> corners) {
+  //  ArrayList<ArrayList<Wall>> polygons = new ArrayList<>();
+  //  Stack<ArrayList<Wall>> stack = new Stack<>();
+
+  //  // Initialize the stack with the original polygon
+  //  stack.push(new ArrayList<>(corners));
+
+
+  //  ArrayList<Wall> current = stack.pop();
+  //  ArrayList<PVector> reflexCorners = new ArrayList<>();
+
+  //  //System.out.println("\nCurrent Map");
+  //  //for (Wall wall : current) {
+  //  //  System.out.println("Side");
+  //  //  System.out.println(wall.start);
+  //  //  System.out.println(wall.end + "\n");
+  //  //}
+
+  //  // Find all reflex angles
+  //  reflexCorners = findReflexAngles(current);
+
+  //  //for (PVector rc : reflexCorners) {
+  //  //  System.out.println("RC: " + rc);
+  //  //}
+
+  //  PVector reflexCorner = new PVector();
+  //  //if (!reflexCorners.isEmpty()) {
+  //  //  reflexCorner = reflexCorners.get(0);
+  //  //  System.out.println("First Reflex Corner: " + reflexCorner);
+  //  //} else {
+  //  //  System.out.println("No reflex corners found.");
+  //  //}
+
+  //  //System.out.println("First Reflex Corner: " + reflexCorner);
+
+  //  //for (PVector reflexCorner : reflexCorners) {
+  //  Wall edge = createEdge(reflexCorner, current, map);
+  //  //System.out.println(edge);
+  //  //System.out.println("Edge:");
+  //  //System.out.println("Start: " + edge.start);
+  //  //System.out.println("End: " + edge.end);
+  //  if (edge != null) {
+  //    ArrayList<Wall> newPolygon = splitPolygon(current, reflexCorner, edge);
+  //    //System.out.print("New Polygon\n");
+  //    //for (Wall wall : newPolygon) {
+  //    //  System.out.print("Side\n");
+  //    //  System.out.println("Start: " + wall.start);
+  //    //  System.out.println("End: " + wall.end);
+  //    //}
+
+  //    if (!newPolygon.isEmpty()) {
+  //      if (isConvexPolygon(newPolygon)) {
+  //        polygons.add(newPolygon);
+  //      } else {
+  //        stack.push(newPolygon); // Add the new polygon for further processing
+  //        //System.out.println("\nStack");
+  //        //for (ArrayList<Wall> s : stack) {
+  //        //  System.out.println("\nStack Polygon");
+  //        //  for (Wall wall : s) {
+  //        //    System.out.println("Side");
+  //        //    System.out.println(wall.start);
+  //        //    System.out.println(wall.end + "\n");
+  //        //  }
+  //        //}
+  //      }
+  //    }
+
+  //    System.out.println(isConvexPolygon(newPolygon));
+
+  //    updateCurrent(current, newPolygon, edge);
+
+  //    if (isConvexPolygon(current)) {
+  //      polygons.add(current);
+  //    } else {
+  //      stack.push(current);
+  //    }
+
+  //    //System.out.println("\nCurrent Map");
+  //    //for (Wall wall : current) {
+  //    //  System.out.println("Side");
+  //    //  System.out.println(wall.start);
+  //    //  System.out.println(wall.end + "\n");
+  //    //}
+  //  }
+  //  //}
+
+
+  //  System.out.println("\nList of Convex Polygons");
+  //  for (ArrayList<Wall> polygon : polygons) {
+  //    System.out.println("\nConvex Polygon");
+  //    for (Wall wall : polygon) {
+  //      System.out.println("Side");
+  //      System.out.println(wall.start);
+  //      System.out.println(wall.end + "\n");
+  //    }
+  //  }
+
+  //  System.out.println("\nCurrent Map");
+  //  for (Wall wall : current) {
+  //    System.out.println("Side");
+  //    System.out.println(wall.start);
+  //    System.out.println(wall.end + "\n");
+  //  }
+
+  //  return polygons;
+  //}
+
 
   void updateCurrent(ArrayList<Wall> current, ArrayList<Wall> newPolygon, Wall edge) {
     int currentIndex = -1;
@@ -217,19 +325,124 @@ class NavMesh
     return newPolygon;
   }
 
+  // intersects
   Wall createEdge(PVector reflex, ArrayList<Wall> polygon, Map map) {
-    Wall edge = null;
+    //Wall edge = null;
+    //float distance = Float.MAX_VALUE;
+
+    ////// from the reflex angle
+    ////// for each wall in the polygon
+    ////// make the candidate as wall.start to connect to reflex angle as an edge
+    ////// reflex angle shouldn't be candidate
+    ////// reflex-candidate shouldn't be the original wall
+    ////// reflex-candidate should be in the polygon
+    ////// reflex-candidate shouldn't intersect any of the polygon walls
+
+    ////// check distance from reflex to candidate
+    ////// return and create the edge that has the shortest distance
+
+    //Wall edge = null;
+    //float distance = Float.MAX_VALUE;
+
+    //for (Wall wall : polygon) {
+    //  //Wall wall = polygon.get(0);
+    //  PVector candidate = wall.start;
+    //  System.out.println("Candidate: " + candidate);
+
+    //  // Check if the edge collides with a wall
+    //  if (!reflex.equals(candidate) && !isOriginalWall(reflex, candidate, polygon)) {
+    //    // Create a temporary edge for the candidate
+    //    Wall tempEdge = new Wall(reflex, candidate);
+    //    System.out.println("Temp Edge: " + tempEdge.start + tempEdge.end);
+
+    //    // Check if this edge intersects with any wall in the polygon
+    //    boolean intersectsAny = false;
+    //    for (Wall existingWall : polygon) {
+    //      System.out.println("Intersects: " + intersects(reflex, candidate, existingWall.start, existingWall.end, polygon));
+    //      if (intersects(reflex, candidate, existingWall.start, existingWall.end, polygon)) {
+    //        intersectsAny = true;
+    //        //System.out.println("Intersects: " + existingWall.crosses(tempEdge.start, tempEdge.end));
+    //        break;
+    //      }
+    //    }
+    //    //existingWall.crosses(tempEdge.start, tempEdge.end)
+    //    // If there are no intersections, check the distance
+    //    if (!intersectsAny && distance > PVector.dist(reflex, candidate) &&
+    //      isPointInPolygon(new PVector(random(reflex.x, candidate.x), random(reflex.y, candidate.y)), polygon)) {
+
+    //      distance = PVector.dist(reflex, candidate);
+    //      edge = tempEdge; // Create the edge
+    //      System.out.println("New Wall");
+    //      System.out.println("Edge: " + edge.start + edge.end);
+    //    }
+    //  }
+    //}
+
+    //if (edge != null) {
+    //  System.out.println("Shortest Edge: " + distance);
+    //}
+    //return edge;
+
+
+
+    //Wall edge = null;
+    //float distance = Float.MAX_VALUE;
+
+    ////Wall wall = polygon.get(0);
+
+    //for (Wall wall : polygon) {
+    //  PVector candidate = wall.start;
+    //  System.out.println("Candidate: " + candidate);
+    //  System.out.println(intersects(reflex, candidate, wall.start, wall.end, polygon));
+    //  //System.out.println(isPointInPolygon(reflex, polygon));
+    //  //System.out.println(reflex.equals(candidate));
+
+    //  // Check if the edge collides with a wall
+    //  if (!reflex.equals(candidate) &&
+    //    !intersects(reflex, candidate, wall.start, wall.end, polygon) &&
+    //    distance > PVector.dist(reflex, candidate) &&
+    //    !isOriginalWall(reflex, candidate, polygon) &&
+    //    //isPointInPolygon(getRandomPoint(new Wall(reflex, candidate)), polygon)
+    //    isPointInPolygon(new PVector(random(reflex.x, candidate.x), random(reflex.y, candidate.y)), polygon)
+    //    //isPointInPolygon(candidate, polygon)
+    //    ) {
+    //    System.out.println("New Wall");
+    //    distance = PVector.dist(reflex, candidate);
+    //    edge = new Wall(reflex, candidate); // Create the edge
+    //    System.out.println("Edge: " + edge.start + edge.end);
+    //  }
+    //  //if (!reflex.equals(candidate) && wall.crosses(candidate, reflex)) {
+    //  //  System.out.println("New Wall");
+    //  //  return new Wall(reflex, candidate);  // Create the edge
+    //  //}
+    //}
+    //if (edge != null) {
+    //  System.out.println("Shortest Edge: " + distance);
+    //}
+    //return edge;
+    
+    
+    
+        Wall edge = null;
     float distance = Float.MAX_VALUE;
 
     for (Wall wall : polygon) {
       PVector candidate = wall.start;
       System.out.println("Candidate: " + candidate);
+
       //System.out.println(!intersects(reflex, candidate, wall.start, wall.end));
+
+      //System.out.println(intersects(reflex, candidate, wall.start, wall.end, polygon));
+      System.out.println(intersects(reflex, candidate, wall.start, wall.end, polygon, map));
+      //System.out.println(map.collides(reflex, candidate));
+      //System.out.println(isPointInPolygon(reflex, polygon));
+
       //System.out.println(reflex.equals(candidate));
 
       // Check if the edge collides with a wall
       if (!reflex.equals(candidate) &&
-        !intersects(reflex, candidate, wall.start, wall.end) &&
+        !intersects(reflex, candidate, wall.start, wall.end, polygon, map) &&
+        //!map.collides(reflex, candidate) && 
         distance > PVector.dist(reflex, candidate) &&
         !isOriginalWall(reflex, candidate, polygon) &&
         //isPointInPolygon(getRandomPoint(new Wall(reflex, candidate)), polygon)
@@ -248,6 +461,45 @@ class NavMesh
       System.out.println("Shortest Edge: " + distance);
     }
     return edge;
+
+
+
+
+
+
+    //Wall edge = null;
+    //float distance = Float.MAX_VALUE;
+
+    //for (Wall wall : polygon) {
+    //  PVector candidate = wall.start;
+    //  System.out.println("Candidate: " + candidate);
+    //  System.out.println(intersects(reflex, candidate, wall.start, wall.end, polygon));
+    //  //System.out.println(isPointInPolygon(reflex, polygon));
+    //  //System.out.println(reflex.equals(candidate));
+
+    //  // Check if the edge collides with a wall
+    //  if (!reflex.equals(candidate) &&
+    //    !intersects(reflex, candidate, wall.start, wall.end, polygon) &&
+    //    distance > PVector.dist(reflex, candidate) &&
+    //    !isOriginalWall(reflex, candidate, polygon) &&
+    //    //isPointInPolygon(getRandomPoint(new Wall(reflex, candidate)), polygon)
+    //    isPointInPolygon(new PVector(random(reflex.x, candidate.x), random(reflex.y, candidate.y)), polygon)
+    //    //isPointInPolygon(candidate, polygon)
+    //    ) {
+    //    System.out.println("New Wall");
+    //    distance = PVector.dist(reflex, candidate);
+    //    edge = new Wall(reflex, candidate); // Create the edge
+    //    System.out.println("Edge: " + edge.start + edge.end);
+    //  }
+    //  //if (!reflex.equals(candidate) && wall.crosses(candidate, reflex)) {
+    //  //  System.out.println("New Wall");
+    //  //  return new Wall(reflex, candidate);  // Create the edge
+    //  //}
+    //}
+    //if (edge != null) {
+    //  System.out.println("Shortest Edge: " + distance);
+    //}
+    //return edge;
   }
 
   boolean isOriginalWall(PVector reflex, PVector candidate, ArrayList<Wall> polygon) {
@@ -261,16 +513,31 @@ class NavMesh
     return false;
   }
 
-  boolean intersects(PVector p1, PVector p2, PVector p3, PVector p4) {
-    PVector d1 = PVector.sub(p2, p1).normalize();
-    PVector d2 = PVector.sub(p4, p3).normalize();
+  boolean intersects(PVector p1, PVector p2, PVector p3, PVector p4, ArrayList<Wall> polygon, Map map) {
+    for (Wall wall : polygon) {
+      System.out.println("Wall: " + wall.start + wall.end);
+      System.out.println("Wall crosses: " + wall.crosses(p1, p2));
+      System.out.println("Start equal: " + wall.start.equals(p2));
 
-    float dist1 = d1.dot(PVector.sub(p3, p1).normalize());
-    float dist2 = d1.dot(PVector.sub(p4, p1).normalize());
-    float dist3 = d2.dot(PVector.sub(p1, p3).normalize());
-    float dist4 = d2.dot(PVector.sub(p2, p3).normalize());
+      if (map.collides(p1, p2)) {
+        if (wall.start.equals(p2) || wall.end.equals(p2)) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
 
-    return (dist1 * dist2 < 0 && dist3 * dist4 < 0);
+    return false;
+    //PVector d1 = PVector.sub(p2, p1).normalize();
+    //PVector d2 = PVector.sub(p4, p3).normalize();
+
+    //float dist1 = d1.dot(PVector.sub(p3, p1).normalize());
+    //float dist2 = d1.dot(PVector.sub(p4, p1).normalize());
+    //float dist3 = d2.dot(PVector.sub(p1, p3).normalize());
+    //float dist4 = d2.dot(PVector.sub(p2, p3).normalize());
+
+    //return (dist1 * dist2 < 0 && dist3 * dist4 < 0);
   }
 
   boolean isConvexPolygon(ArrayList<Wall> corners) {
@@ -290,7 +557,11 @@ class NavMesh
   ArrayList<PVector> findReflexAngles(ArrayList<Wall> corners) {
     // Determine which corners are non-convex (concave) by checking if the angle is > 180
     // a.normal.dot(b.direction)
+
     reflex = new ArrayList<>();
+
+    ArrayList<PVector> reflex = new ArrayList<>();
+
     for (int i = 0; i < corners.size(); i++) {
       Wall current = corners.get(i);
       Wall next = corners.get((i + 1) % corners.size());
